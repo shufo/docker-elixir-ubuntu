@@ -1,0 +1,68 @@
+app:
+  build: ../
+  environment:
+    - "SERVICE_NAME=api_v1"
+    - "SERVICE_TAGS=api_v1"
+  dns:
+    - "8.8.8.8"
+  restart: always
+
+mysql:
+  image: mysql:latest
+  environment:
+    SERVICE_NAME: "mysql"
+    SERVICE_TAGS: "mysql"
+    MYSQL_ROOT_PASSWORD:
+    MYSQL_DATABASE:
+    MYSQL_USER:
+    MYSQL_PASSWORD:
+  restart: always
+
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  ports:
+    - "8080:80"
+  
+consul:
+  command: -server -bootstrap -data-dir ./data -ui-dir /ui
+  image: progrium/consul:latest
+  ports:
+    - "8300"
+    - "8400"
+    - "8500"
+    - "8600/udp"
+  environment:
+    CONSUL_SERVER_ADDRESS:
+    - "affinity:container!=nodes_consul_*"
+    - "SERVICE_TAGS=consul"
+  net: "host"
+  restart: always
+
+registrator:
+  command: -internal consul://127.0.0.1:8500
+  image: sttts/registrator:latest
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  environment:
+    - "affinity:container!=nodes_registrator_*"
+    - "SERVICE_TAGS=registrator"
+  net: "host"
+  restart: always
+
+nginx:
+  build: ../docker/nginx
+  environment:
+    - "affinity:container!=nodes_nginx_*"
+    - "CONSUL_PORT_8500_TCP_ADDR=127.0.0.1"
+    - "SERVICE_TAGS=nginx"
+  net: "host"
+  restart: always
+
+swift:
+  build: ../docker/swift
+  environment:
+    SWIFT_USER: "admin:admin"
+    SWIFT_SET_PASSWORDS:
+
+redis:
+  image: redis:latest

@@ -31,4 +31,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
+# ansible
+ansible/bin/*

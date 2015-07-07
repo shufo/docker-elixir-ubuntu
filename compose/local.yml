@@ -1,0 +1,51 @@
+api:
+  extends:
+    file: common.yml
+    service: api
+  volumes:
+    - ${API_MOUNT_DIR}:/var/www/html
+  links:
+     - mysql:mysql
+     - swift:swift
+     - redis:redis
+
+mysql:
+  extends:
+    file: common.yml
+    service: mysql
+  volumes:
+    - ${MYSQL_MOUNT_DIR}:/var/lib/mysql
+
+phpmyadmin:
+  extends:
+    file: common.yml
+    service: phpmyadmin
+  links:
+    - mysql:mysql
+
+consul:
+  extends:
+    file: common.yml
+    service: consul 
+
+registrator:
+  extends:
+    file: common.yml
+    service: registrator
+
+nginx:
+  extends:
+    file: common.yml
+    service: nginx
+
+swift:
+  extends:
+    file: common.yml
+    service: swift
+  volumes:
+    - ${SWIFT_MOUNT_DIR}:/srv
+
+redis:
+  extends:
+    file: common.yml
+    service: redis
